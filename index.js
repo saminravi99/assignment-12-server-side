@@ -69,8 +69,15 @@ const run = async () => {
       res.send(tools);
     });
 
+    ////API to get all orders
+    app.get("/orders", async (req, res) => {
+      const orders = await ordersCollection.find({}).toArray();
+      res.send(orders);
+    });
+
 
     
+
   } finally {
     // client.close();
   }
