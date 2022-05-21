@@ -58,10 +58,12 @@ const run = async () => {
       res.send({ accessToken });
     });
 
+    // API to Run Server
+    app.get("/", async (req, res) => {
+      res.send("Manufacturer Server Running");
+    });
 
     
-
-
   } finally {
     // client.close();
   }
