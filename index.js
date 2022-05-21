@@ -125,6 +125,18 @@ const run = async () => {
       }
     });
 
+    //API delete a product
+    app.delete("/product/:id", verifyJWT, async (req, res) => {
+      const decodedEmail = req.decoded.email;
+      const email = req.headers.email;
+      if (email === decodedEmail) {
+        const id = req.params.id;
+        await toolsCollection.deleteOne({ _id: ObjectId(id) });
+        res.send("Deleted");
+      } else {
+        res.send("Unauthorized access");
+      }
+    });
 
     
   } finally {
