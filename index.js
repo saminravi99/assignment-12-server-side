@@ -93,7 +93,11 @@ const run = async () => {
       res.send(orders);
     });
 
-
+    //API to get all reviews
+    app.get("/reviews", async (req, res) => {
+      const reviews = await reviewsCollection.find({}).toArray();
+      res.send(reviews);
+    });
     
   } finally {
     // client.close();
