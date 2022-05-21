@@ -28,3 +28,35 @@ function verifyJWT(req, res, next) {
     next();
   });
 }
+
+const { MongoClient, ServerApiVersion } = require("mongodb");
+const uri =
+  `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.q4ici.mongodb.net/?retryWrites=true&w=majority`;
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverApi: ServerApiVersion.v1,
+});
+const run = async () => {
+  try {
+    await client.connect();
+    console.log("Connected to MongoDB");
+    const db = client.db("toolsDB");
+    const toolsCollection = db.collection("toolsCollection");
+    const ordersCollection = db.collection("ordersCollection");
+    const userCollection = db.collection("userCollection");
+    const reviewsCollection = db.collection(
+      "reviewsCollection"
+    );
+    const blogsCollection = db.collection("blogs");
+
+    
+   
+  } finally {
+    // client.close();
+  }
+};
+
+run().catch(console.dir);
+
+app.listen(port, () => console.log(`Listening on port ${port}`));
