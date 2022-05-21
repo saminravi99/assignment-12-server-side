@@ -112,6 +112,20 @@ const run = async () => {
       }
     });
 
+    //API to post a product
+    app.post("/product", verifyJWT, async (req, res) => {
+      const decodedEmail = req.decoded.email;
+      const email = req.headers.email;
+      if (email === decodedEmail) {
+        const product = req.body;
+        await toolsCollection.insertOne(product);
+        res.send(product);
+      } else {
+        res.send("Unauthorized access");
+      }
+    });
+
+
     
   } finally {
     // client.close();
