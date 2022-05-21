@@ -138,7 +138,22 @@ const run = async () => {
       }
     });
 
-    
+    //API to update a tool
+    app.put("/product/:id", verifyJWT, async (req, res) => {
+      const decodedEmail = req.decoded.email;
+      const email = req.headers.email;
+      if (email === decodedEmail) {
+        const id = req.params.id;
+        const product = req.body;
+        await toolsCollection.updateOne(
+          { _id: ObjectId(id) },
+          { $set: product }
+        );
+        res.send(product);
+      } else {
+        res.send("Unauthorized access");
+      }
+    });
   } finally {
     // client.close();
   }
