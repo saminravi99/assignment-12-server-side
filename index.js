@@ -75,9 +75,18 @@ const run = async () => {
       res.send(orders);
     });
 
+    //API to update a order
+    app.put("/orders/:id", async (req, res) => {
+      const orderId = req.params.id;
+      const order = req.body;
+      const query = { _id: ObjectId(orderId) };
+      const updatedOrder = await ordersCollection.findOneAndUpdate(query, {
+        $set: order,
+      });
+      res.send(updatedOrder);
+    });
 
     
-
   } finally {
     // client.close();
   }
