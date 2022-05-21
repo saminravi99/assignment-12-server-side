@@ -45,13 +45,23 @@ const run = async () => {
     const toolsCollection = db.collection("toolsCollection");
     const ordersCollection = db.collection("ordersCollection");
     const userCollection = db.collection("userCollection");
-    const reviewsCollection = db.collection(
-      "reviewsCollection"
-    );
+    const reviewsCollection = db.collection("reviewsCollection");
     const blogsCollection = db.collection("blogs");
 
+    //Authentication API
+
+    app.post("/login", async (req, res) => {
+      const user = req.body;
+      const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1d",
+      });
+      res.send({ accessToken });
+    });
+
+
     
-   
+
+
   } finally {
     // client.close();
   }
