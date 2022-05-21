@@ -63,6 +63,13 @@ const run = async () => {
       res.send("Manufacturer Server Running");
     });
 
+    //API to get all tools
+    app.get("/tools", async (req, res) => {
+      const tools = await toolsCollection.find({}).toArray();
+      res.send(tools);
+    });
+
+
     
   } finally {
     // client.close();
