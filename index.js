@@ -86,6 +86,14 @@ const run = async () => {
       res.send(updatedOrder);
     });
 
+    //API to get orders by user email
+    app.get("/orders/:email", async (req, res) => {
+      const email = req.params.email;
+      const orders = await ordersCollection.find({ email }).toArray();
+      res.send(orders);
+    });
+
+
     
   } finally {
     // client.close();
