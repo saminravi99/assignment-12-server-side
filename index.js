@@ -98,6 +98,20 @@ const run = async () => {
       const reviews = await reviewsCollection.find({}).toArray();
       res.send(reviews);
     });
+
+    //API to post a review
+    app.post("/review", verifyJWT, async (req, res) => {
+      const decodedEmail = req.decoded.email;
+      const email = req.headers.email;
+      if (email === decodedEmail) {
+        const review = req.body;
+        await reviewsCollection.insertOne(review);
+        res.send(review);
+      } else {
+        res.send("Unauthorized access");
+      }
+    });
+
     
   } finally {
     // client.close();
