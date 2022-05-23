@@ -41,9 +41,9 @@ const run = async () => {
     const db = client.db("toolsDB");
     const toolsCollection = db.collection("toolsCollection");
     const ordersCollection = db.collection("ordersCollection");
-    const userCollection = db.collection("userCollection");
+    const usersCollection = db.collection("usersCollection");
     const reviewsCollection = db.collection("reviewsCollection");
-    const blogsCollection = db.collection("blogs");
+    const blogsCollection = db.collection("blogsCollection");
 
     //Verify Admin Role
     const verifyAdmin = async (req, res, next) => {
@@ -65,17 +65,23 @@ const run = async () => {
       const updateDoc = {
         $set: { role: "admin" },
       };
-      const result = await userCollection.updateOne(filter, updateDoc);
+      const result = await usersCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
 
     //API to get admin
     app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
-      const user = await userCollection.findOne({ email: email });
-      const isAdmin = user.role === "admin";
+      const user = await usersCollection.findOne({ email: email });
+      const isAdmin = user?.role === "admin";
       res.send({ admin: isAdmin });
     });
+    //API to get all users
+    app.get("/admin", async (req, res) => {
+      const users = await usersCollection.find({}).toArray();
+      res.send(users);
+    });
+
 
     //Authentication API
     app.post("/login", async (req, res) => {
@@ -122,7 +128,14 @@ const run = async () => {
     //API to get orders by user email
     app.get("/orders/:email", async (req, res) => {
       const email = req.params.email;
-      const orders = await ordersCollection.find({ email }).toArray();
+      const orders = await ordersCollection.find({ userEmail : email }).toArray();
+      res.send(orders);
+    });
+    //API to get orders with multiple query parameters
+    app.get("/orders/:email/:isdelivered", async (req, res) => {
+      const email = req.params.email;
+      const isdelivered = req.params.isdelivered;
+      const orders = await ordersCollection.find({ userEmail : email, isDelivered : true }).toArray();
       res.send(orders);
     });
 
