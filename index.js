@@ -44,11 +44,12 @@ const run = async () => {
     const usersCollection = db.collection("usersCollection");
     const reviewsCollection = db.collection("reviewsCollection");
     const blogsCollection = db.collection("blogsCollection");
+    const adminsCollection = db.collection("adminsCollection");
 
     //Verify Admin Role
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
-      const requesterAccount = await userCollection.findOne({
+      const requesterAccount = await adminsCollection.findOne({
         email: requester,
       });
       if (requesterAccount.role === "admin") {
@@ -58,30 +59,107 @@ const run = async () => {
       }
     };
 
+    //API to post a user
+    app.put("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      console.log("user", user);
+      const query = {
+        email: email
+      };
+      const options = {
+        upsert: true,
+      };
+      const updatedDoc = {
+        $set: {
+          email: user?.email,
+          role: user?.role,
+        },
+      };
+      const result = await usersCollection.updateOne(
+        query,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
+    //API to update a user
+    app.put("/update/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      console.log("user", user);
+      const query = {
+        email: email
+      };
+      const options = {
+        upsert: true,
+      };
+      const updatedDoc = {
+        $set: {
+          displayName: user?.displayName,
+          institution : user?.institution,
+          phoneNumber : user?.phoneNumber,
+          address : user?.address,
+          dateOfBirth : user?.dateOfBirth
+        },
+      };
+      const result = await usersCollection.updateOne(
+        query,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
+
     //API to make Admin
     app.put("/user/admin/:email", verifyJWT, verifyAdmin, async (req, res) => {
       const email = req.params.email;
       const filter = { email: email };
+      const options = { upsert: true }
       const updateDoc = {
-        $set: { role: "admin" },
+        $set: { 
+          email: email,
+          role: "admin" },
       };
-      const result = await usersCollection.updateOne(filter, updateDoc);
+      const result = await adminsCollection.updateOne(filter, updateDoc, options);
       res.send(result);
     });
+
+    //API to remove admin
+    app.delete("/user/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const result = await adminsCollection.deleteOne(filter);
+      res.send(result);
+    }
+    );
 
     //API to get admin
     app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
-      const user = await usersCollection.findOne({ email: email });
+      const user = await adminsCollection.findOne({ email: email });
       const isAdmin = user?.role === "admin";
       res.send({ admin: isAdmin });
     });
-    //API to get all users
+
+    //API to get all admin
     app.get("/admin", async (req, res) => {
+      const admins = await adminsCollection.find({}).toArray();
+      res.send(admins); 
+    });
+
+    //API to get all users
+    app.get("/users", async (req, res) => {
       const users = await usersCollection.find({}).toArray();
       res.send(users);
     });
 
+    //API to get single user
+    app.get("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = await usersCollection.findOne({ email: email });
+      res.send(user);
+    });
 
     //Authentication API
     app.post("/login", async (req, res) => {
@@ -103,6 +181,13 @@ const run = async () => {
       res.send(tools);
     });
 
+    //API to get single tools
+    app.get("/tools/:id", async (req, res) => {
+      const id = req.params.id;
+      const tool = await toolsCollection.findOne({ _id: ObjectId(id) });
+      res.send(tool);
+    });
+
     ////API to get all orders
     app.get("/orders", async (req, res) => {
       const orders = await ordersCollection.find({}).toArray();
@@ -113,9 +198,10 @@ const run = async () => {
     app.put("/orders/:id", async (req, res) => {
       const orderId = req.params.id;
       const order = req.body;
+      console.log("order", order);
       const query = { _id: ObjectId(orderId) };
       const options = { upsert: true };
-      const updatedOrder = await ordersCollection.findOneAndUpdate(
+      const updatedOrder = await ordersCollection.updateOne(
         query,
         {
           $set: order,
@@ -128,15 +214,34 @@ const run = async () => {
     //API to get orders by user email
     app.get("/orders/:email", async (req, res) => {
       const email = req.params.email;
-      const orders = await ordersCollection.find({ userEmail : email }).toArray();
+      const orders = await ordersCollection
+        .find({ userEmail: email })
+        .toArray();
       res.send(orders);
     });
     //API to get orders with multiple query parameters
     app.get("/orders/:email/:isdelivered", async (req, res) => {
       const email = req.params.email;
       const isdelivered = req.params.isdelivered;
-      const orders = await ordersCollection.find({ userEmail : email, isDelivered : true }).toArray();
+      const orders = await ordersCollection
+        .find({ userEmail: email, isDelivered: true })
+        .toArray();
       res.send(orders);
+    });
+
+    //API to add a order
+    app.post("/orders", async (req, res) => {
+      const order = req.body;
+      const result = await ordersCollection.insertOne(order);
+      res.send(result);
+    });
+
+    //API to delete a order
+    app.delete("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log("id", id);
+      const result = await ordersCollection.deleteOne({ _id: ObjectId(id) });
+      res.send(result);
     });
 
     //API to get all reviews
@@ -147,60 +252,53 @@ const run = async () => {
 
     //API to post a review
     app.post("/review", verifyJWT, async (req, res) => {
-      const decodedEmail = req.decoded.email;
-      const email = req.headers.email;
-      if (email === decodedEmail) {
-        const review = req.body;
-        await reviewsCollection.insertOne(review);
-        res.send(review);
-      } else {
-        res.send("Unauthorized access");
-      }
+      // const decodedEmail = req.decoded.email;
+      // const email = req.headers.email;
+      const review = req.body;
+      const result = await reviewsCollection.insertOne(review);
+      res.send(result);
+      // if (email === decodedEmail) {
+        
+      // } else {
+      //   res.send("Unauthorized access");
+      // }
     });
 
     //API to post a product
-    app.post("/product", verifyJWT, async (req, res) => {
-      const decodedEmail = req.decoded.email;
-      const email = req.headers.email;
-      if (email === decodedEmail) {
-        const product = req.body;
-        await toolsCollection.insertOne(product);
-        res.send(product);
-      } else {
-        res.send("Unauthorized access");
-      }
+    app.post("/product",  async (req, res) => {
+      // const decodedEmail = req.decoded.email;
+      // const email = req.headers.email;
+      const product = req.body;
+      console.log("product", product);
+      await toolsCollection.insertOne(product);
+      res.send(product);
     });
 
     //API delete a product
     app.delete("/product/:id", verifyJWT, async (req, res) => {
-      const decodedEmail = req.decoded.email;
-      const email = req.headers.email;
-      if (email === decodedEmail) {
-        const id = req.params.id;
-        await toolsCollection.deleteOne({ _id: ObjectId(id) });
-        res.send("Deleted");
-      } else {
-        res.send("Unauthorized access");
-      }
+      // const decodedEmail = req.decoded.email;
+      // const email = req.headers.email;
+      const id = req.params.id;
+      const result = await toolsCollection.deleteOne({ _id: ObjectId(id) });
+      res.send(result);
+     
     });
 
     //API to update a tool
     app.put("/product/:id", verifyJWT, async (req, res) => {
-      const decodedEmail = req.decoded.email;
-      const email = req.headers.email;
-      if (email === decodedEmail) {
-        const id = req.params.id;
-        const product = req.body;
-        const options = { upsert: true };
-        await toolsCollection.updateOne(
-          { _id: ObjectId(id) },
-          { $set: product } ,
-          options
-        );
-        res.send(product);
-      } else {
-        res.send("Unauthorized access");
-      }
+      // const decodedEmail = req.decoded.email;
+      // const email = req.headers.email;
+      const id = req.params.id; 
+      const product = req.body;
+      console.log("product", product);
+      const options = { upsert: true };
+      const result = await toolsCollection.updateOne(
+        { _id: ObjectId(id) },
+        { $set: product },
+        options
+      );
+      res.send(result);
+     
     });
 
     //API to get blogs
