@@ -63,6 +63,53 @@ const run = async () => {
       }
     };
 
+    //API to get all reviews
+    app.get("/reviews", async (req, res) => {
+      const reviews = await reviewsCollection.find({}).toArray();
+      res.send(reviews);
+    });
+
+    //API to post a review
+    app.post("/review", async (req, res) => {
+      const review = req.body;
+      const result = await reviewsCollection.insertOne(review);
+      res.send(result);
+      // const decodedEmail = req.decoded.email;
+      // const email = req.headers.email;
+      // if (email === decodedEmail) {
+      //   const review = req.body;
+      //   const result = await reviewsCollection.insertOne(review);
+      //   res.send(result);
+      // } else {
+      //   res.send("Unauthorized access");
+      // }
+    });
+
+    //API for payment
+    app.post("/create-payment-intent", async (req, res) => {
+      const { totalPrice } = req.body;
+      const amount = parseInt(totalPrice) * 100;
+      // Create a PaymentIntent with the order amount and currency
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+
+        payment_method_types: ["card"],
+      });
+
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    });
+
+    //API to get blogs
+
+    app.get("/blogs", async (req, res) => {
+      const query = {};
+      const blogs = await blogsCollection.find(query).toArray();
+      res.send(blogs);
+    });
+
     // API to Run Server
     app.get("/", async (req, res) => {
       res.send("Manufacturer Server Running");
@@ -381,54 +428,6 @@ const run = async () => {
     } else {
       res.send("Unauthorized access");
     }
-
-    //API to get all reviews
-    app.get("/reviews", async (req, res) => {
-      const reviews = await reviewsCollection.find({}).toArray();
-      res.send(reviews);
-    });
-
-    
-    //API to post a review
-    app.post("/review", async (req, res) => {
-       const review = req.body;
-       const result = await reviewsCollection.insertOne(review);
-       res.send(result);
-      // const decodedEmail = req.decoded.email;
-      // const email = req.headers.email;
-      // if (email === decodedEmail) {
-      //   const review = req.body;
-      //   const result = await reviewsCollection.insertOne(review);
-      //   res.send(result);
-      // } else {
-      //   res.send("Unauthorized access");
-      // }
-    });
-
-    //API for payment
-    app.post("/create-payment-intent", async (req, res) => {
-      const { totalPrice } = req.body;
-      const amount = parseInt(totalPrice) * 100;
-      // Create a PaymentIntent with the order amount and currency
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: amount,
-        currency: "usd",
-
-        payment_method_types: ["card"],
-      });
-
-      res.send({
-        clientSecret: paymentIntent.client_secret,
-      });
-    });
-
-    //API to get blogs
-
-    app.get("/blogs", async (req, res) => {
-      const query = {};
-      const blogs = await blogsCollection.find(query).toArray();
-      res.send(blogs);
-    });
   } finally {
     // client.close();
   }
