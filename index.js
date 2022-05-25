@@ -30,8 +30,6 @@ function verifyJWT(req, res, next) {
   });
 }
 
-
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.q4ici.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -417,18 +415,20 @@ const run = async () => {
     });
 
     //API to delete a order
-    const decodedEmail = req.decoded.email;
-    const email = req.headers.email;
-    if (email === decodedEmail) {
-      app.delete("/orders/:id", verifyJWT, async (req, res) => {
+    app.delete("/orders/:id", verifyJWT, async (req, res) => {
+      const decodedEmail = req.decoded.email;
+      const email = req.headers.email;
+      if (email === decodedEmail) {
         const id = req.params.id;
         console.log("id", id);
-        const result = await ordersCollection.deleteOne({ _id: ObjectId(id) });
+        const result = await ordersCollection.deleteOne({
+          _id: ObjectId(id),
+        });
         res.send(result);
-      });
-    } else {
-      res.send("Unauthorized access");
-    }
+      } else {
+        res.send("Unauthorized access");
+      }
+    });
   } finally {
     // client.close();
   }
