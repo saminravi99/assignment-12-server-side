@@ -73,6 +73,7 @@ const run = async () => {
     app.post("/review", async (req, res) => {
       const review = req.body;
       const result = await reviewsCollection.insertOne(review);
+      console.log("Inserted review: ");
       res.send(result);
       // const decodedEmail = req.decoded.email;
       // const email = req.headers.email;
