@@ -389,16 +389,19 @@ const run = async () => {
     });
 
     //API to post a review
-    app.post("/review", verifyJWT, async (req, res) => {
-      const decodedEmail = req.decoded.email;
-      const email = req.headers.email;
-      if (email === decodedEmail) {
-        const review = req.body;
-        const result = await reviewsCollection.insertOne(review);
-        res.send(result);
-      } else {
-        res.send("Unauthorized access");
-      }
+    app.post("/review", async (req, res) => {
+       const review = req.body;
+       const result = await reviewsCollection.insertOne(review);
+       res.send(result);
+      // const decodedEmail = req.decoded.email;
+      // const email = req.headers.email;
+      // if (email === decodedEmail) {
+      //   const review = req.body;
+      //   const result = await reviewsCollection.insertOne(review);
+      //   res.send(result);
+      // } else {
+      //   res.send("Unauthorized access");
+      // }
     });
 
     //API for payment
