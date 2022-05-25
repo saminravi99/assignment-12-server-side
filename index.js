@@ -68,6 +68,15 @@ const run = async () => {
       res.send("Manufacturer Server Running");
     });
 
+    //Authentication API
+    app.post("/login", async (req, res) => {
+      const user = req.body;
+      const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1d",
+      });
+      res.send({ accessToken });
+    });
+
     //API to get all users
     app.get("/users", verifyJWT, verifyAdmin, async (req, res) => {
       const decodedEmail = req.decoded.email;
@@ -373,9 +382,8 @@ const run = async () => {
       res.send("Unauthorized access");
     }
 
-    
     //API to get all reviews
-    app.get("/reviews",  async (req, res) => {
+    app.get("/reviews", async (req, res) => {
       const reviews = await reviewsCollection.find({}).toArray();
       res.send(reviews);
     });
@@ -391,15 +399,6 @@ const run = async () => {
       } else {
         res.send("Unauthorized access");
       }
-    });
-
-    //Authentication API
-    app.post("/login", async (req, res) => {
-      const user = req.body;
-      const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1d",
-      });
-      res.send({ accessToken });
     });
 
     //API for payment
