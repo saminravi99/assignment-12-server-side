@@ -373,8 +373,9 @@ const run = async () => {
       res.send("Unauthorized access");
     }
 
+    
     //API to get all reviews
-    app.get("/reviews", async (req, res) => {
+    app.get("/reviews",  async (req, res) => {
       const reviews = await reviewsCollection.find({}).toArray();
       res.send(reviews);
     });
