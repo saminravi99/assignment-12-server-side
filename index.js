@@ -10,7 +10,11 @@ const port = process.env.PORT || 5000;
 const app = express();
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json()); 
+
+const stripe = require("stripe")(
+  process.env.STRIPE_SECRET_KEY
+);
 
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -58,6 +62,23 @@ const run = async () => {
         res.status(403).send({ message: "Forbidden" });
       }
     };
+
+    //API for payment
+    app.post("/create-payment-intent", async (req, res) => {
+      const { totalPrice } = req.body;
+      const amount = parseInt(totalPrice) * 100;
+      // Create a PaymentIntent with the order amount and currency
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        
+        payment_method_types: ["card"] 
+      });
+
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      }); 
+    });
 
     //API to post a user
     app.put("/user/:email", async (req, res) => {
@@ -197,7 +218,7 @@ const run = async () => {
     //API to update a order
     app.put("/orders/:id", async (req, res) => {
       const orderId = req.params.id;
-      const order = req.body;
+      const order = req.body; 
       console.log("order", order);
       const query = { _id: ObjectId(orderId) };
       const options = { upsert: true };
@@ -280,7 +301,7 @@ const run = async () => {
       // const email = req.headers.email;
       const id = req.params.id;
       const result = await toolsCollection.deleteOne({ _id: ObjectId(id) });
-      res.send(result);
+      res.send(result); 
      
     });
 
