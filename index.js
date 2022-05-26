@@ -260,6 +260,22 @@ const run = async () => {
       //  const isAdmin = user?.role === "admin";
       //   res.send({ admin: isAdmin });
     });
+    //API to verify 1 admin
+    app.get("/verify/admin/:email", async (req, res) => {
+      // const decodedEmail = req.decoded.email;
+      // const email = req.headers.email;
+      // if (email === decodedEmail) {
+       
+      //   res.send({ admin: isAdmin });
+      // } else {
+      //   res.send("Unauthorized access");
+      // }
+       const email = req.params.email;
+       const user = await adminsCollection.findOne({ email: email });
+        // res.send(user);
+       const isAdmin = user?.role === "admin";
+        res.send({ admin: isAdmin });
+    });
 
     //API to get all admin
     app.get("/admin", verifyJWT, verifyAdmin, async (req, res) => {
