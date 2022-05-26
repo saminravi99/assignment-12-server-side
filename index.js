@@ -14,6 +14,7 @@ app.use(bodyParser.json());
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
+
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
