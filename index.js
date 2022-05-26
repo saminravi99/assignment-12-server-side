@@ -132,21 +132,21 @@ const run = async () => {
       }
     });
 
-    //API to get single user
-    app.get("/user/:email", async (req, res) => {
+    //API to get single user   
+    app.get("/user/:email", verifyJWT, async (req, res) => {     
       const decodedEmail = req.decoded.email;
       const email = req.headers.email;
-      res.send(user);
       if (email === decodedEmail) {
         const email = req.params.email;
         const user = await usersCollection.findOne({ email: email });
+        res.send(user);
       } else {
         res.send("Unauthorized access");
       }
     });
 
     //API to post a user
-    app.put("/user/:email", async (req, res) => {
+    app.put("/user/:email", verifyJWT, async (req, res) => {
       const decodedEmail = req.decoded.email;
       const email = req.headers.email;
        if (email === decodedEmail) {
@@ -261,7 +261,7 @@ const run = async () => {
        if (email === decodedEmail) {
          const email = req.params.email;
          const user = await adminsCollection.findOne({ email: email });
-         res.send({ admin: isAdmin });
+          res.send(user);
        } else {
          res.send("Unauthorized access");
        }
