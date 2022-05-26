@@ -409,14 +409,14 @@ const run = async () => {
       }
     });
     //API to get orders with multiple query parameters
-    app.get("/orders/:email/:isdelivered", verifyJWT, async (req, res) => {
+    app.get("/orders/:email/:isPaid", verifyJWT, async (req, res) => {
       const decodedEmail = req.decoded.email;
       const emailHeader = req.headers.email;
       if (emailHeader === decodedEmail) {
         const email = req.params.email;
-        const isdelivered = req.params.isdelivered;
+        const isPaid = req.params.isPaid;
         const orders = await ordersCollection
-          .find({ userEmail: email, isDelivered: true })
+          .find({ userEmail: email, isPaid: isPaid })
           .toArray();
         res.send(orders);
       } else {
