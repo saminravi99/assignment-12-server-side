@@ -14,7 +14,6 @@ app.use(bodyParser.json());
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -69,7 +68,7 @@ const run = async () => {
     });
 
     //API to post a review
-    app.post("/review", async (req, res) => {
+    app.post("/review", verifyJWT, async (req, res) => {
       const decodedEmail = req.decoded.email;
       const email = req.headers.email;
 
@@ -135,34 +134,46 @@ const run = async () => {
 
     //API to get single user
     app.get("/user/:email", async (req, res) => {
-      const email = req.params.email;
-      const user = await usersCollection.findOne({ email: email });
+      const decodedEmail = req.decoded.email;
+      const email = req.headers.email;
       res.send(user);
+      if (email === decodedEmail) {
+        const email = req.params.email;
+        const user = await usersCollection.findOne({ email: email });
+      } else {
+        res.send("Unauthorized access");
+      }
     });
 
     //API to post a user
     app.put("/user/:email", async (req, res) => {
-      const email = req.params.email;
-      const user = req.body;
-      console.log("user", user);
-      const query = {
-        email: email,
-      };
-      const options = {
-        upsert: true,
-      };
-      const updatedDoc = {
-        $set: {
-          email: user?.email,
-          role: user?.role,
-        },
-      };
-      const result = await usersCollection.updateOne(
-        query,
-        updatedDoc,
-        options
-      );
-      res.send(result);
+      const decodedEmail = req.decoded.email;
+      const email = req.headers.email;
+       if (email === decodedEmail) {
+       const email = req.params.email;
+       const user = req.body;
+       console.log("user", user);
+       const query = {
+         email: email,
+       };
+       const options = {
+         upsert: true,
+       };
+       const updatedDoc = {
+         $set: {
+           email: user?.email,
+           role: user?.role,
+         },
+       };
+       const result = await usersCollection.updateOne(
+         query,
+         updatedDoc,
+         options
+       );
+       res.send(result);
+       } else {
+         res.send("Unauthorized access");
+       }
     });
     //API to update a user
     app.put("/update/user/:email", verifyJWT, async (req, res) => {
@@ -244,11 +255,16 @@ const run = async () => {
     );
 
     //API to get 1 admin
-    app.get("/admin/:email", async (req, res) => {
-      const email = req.params.email;
-      const user = await adminsCollection.findOne({ email: email });
-      res.send(user);
-      res.send({ admin: isAdmin });
+    app.get("/admin/:email", verifyJWT, async (req, res) => {
+       const decodedEmail = req.decoded.email;
+       const email = req.headers.email;
+       if (email === decodedEmail) {
+         const email = req.params.email;
+         const user = await adminsCollection.findOne({ email: email });
+         res.send({ admin: isAdmin });
+       } else {
+         res.send("Unauthorized access");
+       }
     });
 
     //API to verify 1 admin
