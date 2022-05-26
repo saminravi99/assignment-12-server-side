@@ -1,4 +1,4 @@
-# Project Name : Manufacturer Website Application (Xpart) | Assignment - 12
+# Project Name : Web App For Tools Manufacturer Company (Xpart) | Assignment - 12
 
 ## Live Site Link : [ https://manufacturer-xpart.web.app/](https://manufacturer-xpart.web.app/)
 
