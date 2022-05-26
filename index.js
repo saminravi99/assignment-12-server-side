@@ -416,7 +416,7 @@ const run = async () => {
         const email = req.params.email;
         const isPaid = req.params.isPaid;
         const orders = await ordersCollection
-          .find({ userEmail: email, isPaid: isPaid })
+          .find({ userEmail: email, isPaid: true })
           .toArray();
         res.send(orders);
       } else {
