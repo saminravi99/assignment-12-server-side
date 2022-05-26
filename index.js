@@ -245,17 +245,20 @@ const run = async () => {
     );
 
     //API to get 1 admin
-    app.get("/admin/:email", verifyJWT, async (req, res) => {
-      const decodedEmail = req.decoded.email;
-      const email = req.headers.email;
-      if (email === decodedEmail) {
-        const email = req.params.email;
-        const user = await adminsCollection.findOne({ email: email });
-        const isAdmin = user?.role === "admin";
-        res.send({ admin: isAdmin });
-      } else {
-        res.send("Unauthorized access");
-      }
+    app.get("/admin/:email", async (req, res) => {
+      // const decodedEmail = req.decoded.email;
+      // const email = req.headers.email;
+      // if (email === decodedEmail) {
+       
+      //   res.send({ admin: isAdmin });
+      // } else {
+      //   res.send("Unauthorized access");
+      // }
+       const email = req.params.email;
+       const user = await adminsCollection.findOne({ email: email });
+        res.send(user);
+      //  const isAdmin = user?.role === "admin";
+      //   res.send({ admin: isAdmin });
     });
 
     //API to get all admin
