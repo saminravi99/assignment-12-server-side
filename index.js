@@ -206,6 +206,7 @@ const run = async () => {
       const email = req.headers.email;
       if (email === decodedEmail) {
         const email = req.params.email;
+        console.log("email", email);
         const filter = { email: email };
         const options = { upsert: true };
         const updateDoc = {
@@ -260,21 +261,20 @@ const run = async () => {
       //  const isAdmin = user?.role === "admin";
       //   res.send({ admin: isAdmin });
     });
+
     //API to verify 1 admin
-    app.get("/verify/admin/:email", async (req, res) => {
-      // const decodedEmail = req.decoded.email;
-      // const email = req.headers.email;
-      // if (email === decodedEmail) {
-       
-      //   res.send({ admin: isAdmin });
-      // } else {
-      //   res.send("Unauthorized access");
-      // }
-       const email = req.params.email;
-       const user = await adminsCollection.findOne({ email: email });
-        // res.send(user);
-       const isAdmin = user?.role === "admin";
+    app.get("/verify/admin/:email", verifyJWT, async (req, res) => {
+      const decodedEmail = req.decoded.email;
+      const email = req.headers.email;
+      if (email === decodedEmail) {
+        const email = req.params.email;
+        const user = await adminsCollection.findOne({ email: email });
+        const isAdmin = user?.role === "admin";
         res.send({ admin: isAdmin });
+      } else {
+        res.send("Unauthorized access");
+      }
+      
     });
 
     //API to get all admin
