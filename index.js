@@ -85,6 +85,7 @@ const run = async () => {
     app.post("/create-payment-intent", async (req, res) => {
       const { totalPrice } = req.body;
       const amount = parseInt(totalPrice) * 100;
+      console.log("amount", amount);
       // Create a PaymentIntent with the order amount and currency
       const paymentIntent = await stripe.paymentIntents.create({
         amount: amount,
@@ -96,7 +97,7 @@ const run = async () => {
       res.send({
         clientSecret: paymentIntent.client_secret,
       });
-    });
+    }); 
 
     //API to get blogs
 
@@ -133,47 +134,51 @@ const run = async () => {
     });
 
     //API to get single user   
-    app.get("/user/:email", verifyJWT, async (req, res) => {     
-      const decodedEmail = req.decoded.email;
-      const email = req.headers.email;
-      if (email === decodedEmail) {
-        const email = req.params.email;
-        const user = await usersCollection.findOne({ email: email });
-        res.send(user);
-      } else {
-        res.send("Unauthorized access");
-      }
+    app.get("/user/:email",  async (req, res) => { 
+      const email = req.params.email;
+      console.log(email);
+      const user = await usersCollection.findOne({ email: email });
+      res.send(user);    
+      // const decodedEmail = req.decoded.email;
+      // const email = req.headers.email;
+      // if (email === decodedEmail) {
+        
+      // } else {
+      //   res.send("Unauthorized access");
+      // }
     });
 
     //API to post a user
-    app.put("/user/:email", verifyJWT, async (req, res) => {
-      const decodedEmail = req.decoded.email;
-      const email = req.headers.email;
-       if (email === decodedEmail) {
-       const email = req.params.email;
-       const user = req.body;
-       console.log("user", user);
-       const query = {
-         email: email,
-       };
-       const options = {
-         upsert: true,
-       };
-       const updatedDoc = {
-         $set: {
-           email: user?.email,
-           role: user?.role,
-         },
-       };
-       const result = await usersCollection.updateOne(
-         query,
-         updatedDoc,
-         options
-       );
-       res.send(result);
-       } else {
-         res.send("Unauthorized access");
-       }
+    app.put("/user/:email",  async (req, res) => {
+      // const decodedEmail = req.decoded.email;
+      // const email = req.headers.email;
+      const email = req.params.email;
+      console.log("put", email);
+      const user = req.body;
+      console.log("user", user);
+      const query = {
+        email: email,
+      };
+      const options = {
+        upsert: true,
+      };
+      const updatedDoc = {
+        $set: {
+          email: user?.email,
+          role: user?.role,
+        },
+      };
+      const result = await usersCollection.updateOne(
+        query,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+      //  if (email === decodedEmail) {
+       
+      //  } else {
+      //    res.send("Unauthorized access");
+      //  }
     });
     //API to update a user
     app.put("/update/user/:email", verifyJWT, async (req, res) => {
@@ -255,16 +260,18 @@ const run = async () => {
     );
 
     //API to get 1 admin
-    app.get("/admin/:email", verifyJWT, async (req, res) => {
-       const decodedEmail = req.decoded.email;
-       const email = req.headers.email;
-       if (email === decodedEmail) {
-         const email = req.params.email;
-         const user = await adminsCollection.findOne({ email: email });
-          res.send(user);
-       } else {
-         res.send("Unauthorized access");
-       }
+    app.get("/admin/:email",  async (req, res) => {
+      const email = req.params.email;
+      console.log("email", email);
+      const user = await adminsCollection.findOne({ email: email });
+      res.send(user);
+      //  const decodedEmail = req.decoded.email;
+      //  const email = req.headers.email;
+      //  if (email === decodedEmail) {
+         
+      //  } else {
+      //    res.send("Unauthorized access");
+      //  }
     });
 
     //API to verify 1 admin
